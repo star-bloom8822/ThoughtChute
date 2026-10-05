@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThoughtChute</title>
+    <style>
+         :root {
+            /* Midnight Mode (Dark): Default is original base (#0f172a), hover is #131c31 */
+            --bg-color: #0f172a;
+            --bg-hover: #131c31;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent-glow: #8194f8;
+            --btn-bg: #7875e8;
+            --btn-hover: #8c89f0;
+            --danger: #f43f5e;
+            --success: #10b981;
+            --badge-bg: #7C668C;
+            --badge-text: #f3f6ff;
+            --warm-purple: #bf97de;
+            --toggle-text: #f8fafc;
+            --badge-border: #bf97de; /* Soft orchid border for dark mode */
+            --badge-glow: rgba(191, 151, 222, 0.25); /* Soft orchid glow */
+        }
+
+        body.theme-light {
+            /* Light Mode: Tuned for better contrast and zero glare */
+            --bg-color: #f1f5f9;
+            --bg-hover: #e2e8f0;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text-primary: #0f172a;
+           --text-secondary: #334155; /* Your original readable secondary text */
+            --accent-glow: #6382df;    /* Softer, non-blinding accent */
+            --btn-bg: #6382df;         /* Your original comfortable button blue */
+            --btn-hover: #4f6dc9;      /* Smooth, gentle hover */
+            --badge-bg: #dbeafe;       /* Soft neutral badge background instead of bright blue */
+            --badge-text: #1e293b;     /* Deep, clear text */
+            --warm-purple: #9769d2;
+            --toggle-text: #0f172a;
+            --badge-border: #6382df;   /* Blue border for light mode */
+            --badge-glow: rgba(99, 130, 223, 0.15); /* Blue glow for light mode */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 4.2rem 1rem 5rem 1rem;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        header, .dashboard, .meter-container, .card, .section-box, textarea, .header-theme-toggle, .badge, button.action-btn {
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body.theme-light header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-titles h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.15rem;
+        }
+
+        .header-titles p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .header-theme-toggle {
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            color: var(--toggle-text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .header-theme-toggle:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--accent-glow);
+        }
+
+        .dashboard {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-glow);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+        }
+
+        .meter-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .meter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .meter-text-desktop { display: inline; }
+        .meter-text-mobile { display: none; }
+
+        .meter-bar-bg {
+            width: 100%;
+            height: 14px;
+            background-color: var(--bg-color);
+            border-radius: 7px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .meter-bar-bg:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .meter-bar-fill {
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, var(--success), var(--danger));
+            transition: width 0.2s ease;
+            pointer-events: none;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea:hover {
+            background-color: var(--bg-hover);
+        }
+
+        textarea:focus {
+            border-color: var(--accent-glow);
+            background-color: var(--card-bg);
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-glow);
+            cursor: pointer;
+        }
+
+        .range-value {
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+            color: var(--accent-glow);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        button.action-btn {
+            flex: 1;
+            background-color: var(--btn-bg);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            white-space: nowrap;
+        }
+
+        button.action-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        button.action-btn:active {
+            transform: scale(0.98);
+        }
+
+        button.action-btn.secondary {
+            background-color: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-secondary);
+        }
+
+        button.action-btn.secondary:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        #shredder-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--card-bg);
+            display: none;
+            visibility: hidden;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        #shredder-overlay.active {
+            display: flex;
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .shredder-slot {
+            width: 90%;
+            height: 6px;
+            background-color: var(--bg-color);
+            border-radius: 3px;
+            border: 1px solid var(--warm-purple);
+            box-shadow: 0 0 10px rgba(196, 181, 253, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shredder-slot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--warm-purple), transparent);
+            animation: originalLightGlow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes originalLightGlow {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .shred-message {
+            font-weight: 700;
+            color: var(--warm-purple);
+            font-size: 1.1rem;
+            line-height: 1.4;
+            text-align: center;
+            padding: 0 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .section-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem;
+        }
+
+        .badge {
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.65rem 0.4rem;
+            font-size: 0.86rem;
+            line-height: 1.2;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .badge small {
+            font-size: 0.72rem;
+            opacity: 0.9;
+        }
+
+        .badge.unlocked {
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+            border-color: var(--badge-border);
+            opacity: 1;
+            box-shadow: 0 0 10px var(--badge-glow);
+            font-weight: 600;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-glow);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+            transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            max-width: 90%;
+            white-space: nowrap;
+        }
+
+        #toast.show {
+            bottom: 20px;
+        }
+
+        @media (max-width: 540px) {
+            body { padding-top: 3.5rem; }
+            .meter-text-desktop { display: none; }
+            .meter-text-mobile { display: inline; }
+            .header-titles p { display: none; }
+            .badges-grid { grid-template-columns: repeat(2, 1fr); }
+            .header-titles h1 { font-size: 1.35rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-titles">
+                <h1>ThoughtChute</h1>
+                <p>Dump your worries, shred the stress, clear your mind.</p>
+            </div>
+            <button id="theme-toggle-btn" class="header-theme-toggle">Midnight Mode</button>
+        </header>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="stat-box">
+                <span id="stat-destroyed" class="stat-value">0</span>
+                <span class="stat-label">Shredded</span>
+            </div>
+            <div class="stat-box">
+                <span id="stat-rank" class="stat-value">Stressed</span>
+                <span class="stat-label">Mind Status</span>
+            </div>
+        </div>
+
+        <!-- Stress Level Meter -->
+        <div class="meter-container">
+            <div class="meter-header">
+                <span>
+                    <span class="meter-text-desktop">Current Stress Level (Tap or Drag bar to adjust)</span>
+                    <span class="meter-text-mobile">Current Stress Level (Tap to adjust)</span>
+                </span>
+                <span id="meter-percent">50%</span>
+            </div>
+            <div id="meter-bar-bg" class="meter-bar-bg">
+                <div id="meter-fill" class="meter-bar-fill" style="width: 50%;"></div>
+            </div>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div id="shredder-overlay">
+                <div class="shredder-slot"></div>
+                <div id="shred-message" class="shred-message">Feeding into shredder... Let it go.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="worry-input">What feels restless in your mind today?</label>
+                <textarea id="worry-input" placeholder="Type your thoughts, worries, or endless to-do stress here safely..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="intensity-slider">How intense is this thought? (1 to 10)</label>
+                <div class="range-container">
+                    <input type="range" id="intensity-slider" min="1" max="10" value="5">
+                    <span id="range-display" class="range-value">5</span>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button id="shred-btn" class="action-btn">Let It Go (Shred It)</button>
+                <button id="clear-btn" class="action-btn secondary">Clear Draft</button>
+            </div>
+        </div>
+
+    
+        <div class="section-box">
+            <div class="section-title">
+                <span>Energy Released</span>
+                <span id="badge-count">0/4 Completed</span>
+            </div>
+            <div class="badges-grid">
+                <div id="badge-1" class="badge">🌱 First Release<br><small>Shred 1 worry</small></div>
+                <div id="badge-2" class="badge">🛡 Stress Fighter<br><small>Shred 5 worries</small></div>
+                <div id="badge-3" class="badge">✨ Zen Master<br><small>Shred 10 worries</small></div>
+                <div id="badge-4" class="badge">🧘 Clear Mind<br><small>Reach 0% stress</small></div>
+            </div>
+            <button id="reset-session-btn" class="action-btn secondary" style="width: 100%;">Reset Session</button>
+        </div>
+    </div>
+
+    <div id="toast">Notification message</div>
+
+    <script>
+        let state = {
+            destroyedCount: 0,
+            zenPoints: 0,
+            stressLoad: 50,
+            currentTheme: 'default'
+        };
+
+        const worryInput = document.getElementById('worry-input');
+        const intensitySlider = document.getElementById('intensity-slider');
+        const rangeDisplay = document.getElementById('range-display');
+        const shredBtn = document.getElementById('shred-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const resetSessionBtn = document.getElementById('reset-session-btn');
+        const shredderOverlay = document.getElementById('shredder-overlay');
+        const shredMessage = document.getElementById('shred-message');
+        
+        const statDestroyed = document.getElementById('stat-destroyed');
+        const statRank = document.getElementById('stat-rank');
+        const meterFill = document.getElementById('meter-fill');
+        const meterPercent = document.getElementById('meter-percent');
+        const meterBarBg = document.getElementById('meter-bar-bg');
+        const badgeCount = document.getElementById('badge-count');
+        const toast = document.getElementById('toast');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+
+        intensitySlider.addEventListener('input', () => {
+            rangeDisplay.textContent = intensitySlider.value;
+        });
+
+        meterBarBg.addEventListener('click', (e) => {
+            const rect = meterBarBg.getBoundingClientRect();
+            const clickPosition = e.clientX - rect.left;
+            const percentage = Math.round((clickPosition / rect.width) * 100);
+            state.stressLoad = Math.max(0, Math.min(100, percentage));
+            updateUI();
+        });
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function updateUI() {
+            statDestroyed.textContent = state.destroyedCount;
+            
+            let rank = "Stressed";
+            if (state.destroyedCount >= 3) rank = "Uplifted";
+            if (state.destroyedCount >= 6) rank = "Unburdened";
+            if (state.destroyedCount >= 10) rank = "Relief";
+            if (state.destroyedCount >= 15) rank = "Serenity";
+            statRank.textContent = rank;
+
+            meterFill.style.width = state.stressLoad + '%';
+            meterPercent.textContent = state.stressLoad + '%';
+
+            let unlockedCount = 0;
+            const badgeMap = {
+                1: state.destroyedCount >= 1,
+                2: state.destroyedCount >= 5,
+                3: state.destroyedCount >= 10,
+                4: state.stressLoad === 0
+            };
+
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`badge-${i}`);
+                if (badgeMap[i]) {
+                    el.classList.add('unlocked');
+                    unlockedCount++;
+                } else {
+                    el.classList.remove('unlocked');
+                }
+            }
+            badgeCount.textContent = `${unlockedCount}/4 Completed`;
+
+            document.body.className = '';
+            if (state.currentTheme !== 'default') {
+                document.body.classList.add(`theme-${state.currentTheme}`);
+                themeToggleBtn.textContent = 'Midnight Mode';
+            } else {
+                themeToggleBtn.textContent = 'Light Mode';
+            }
+        }
+
+        shredderOverlay.classList.remove('active');
+        shredderOverlay.style.display = 'none';
+
+        shredBtn.addEventListener('click', () => {
+            const text = worryInput.value.trim();
+            if (!text) {
+                showToast("Please type something first.");
+                return;
+            }
+
+            const intensity = parseInt(intensitySlider.value);
+            
+            shredderOverlay.style.display = 'flex';
+            void shredderOverlay.offsetWidth;
+            shredderOverlay.classList.add('active');
+            shredMessage.textContent = "Releasing the negative thoughts... Let it go.";
+
+            setTimeout(() => {
+                worryInput.value = '';
+                shredMessage.textContent = "Take a deep breath and exhale the tension.";
+
+                setTimeout(() => {
+                    shredderOverlay.classList.remove('active');
+                    setTimeout(() => {
+                        if (!shredderOverlay.classList.contains('active')) {
+                            shredderOverlay.style.display = 'none';
+                        }
+                    }, 300);
+
+                    state.destroyedCount += 1;
+                    state.zenPoints += intensity * 10;
+                    state.stressLoad = Math.max(0, state.stressLoad - (intensity * 4));
+
+                    updateUI();
+                    showToast("Worry shredded. Mind decluttered.");
+                }, 1800);
+
+            }, 1800);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            worryInput.value = '';
+            showToast("Draft cleared.");
+        });
+
+        resetSessionBtn.addEventListener('click', () => {
+            state = {
+                destroyedCount: 0,
+                zenPoints: 0,
+                stressLoad: 50,
+                currentTheme: state.currentTheme
+            };
+            worryInput.value = '';
+            intensitySlider.value = 5;
+            rangeDisplay.textContent = '5';
+            updateUI();
+        });
+
+        themeToggleBtn.addEventListener('click', () => {
+            state.currentTheme = state.currentTheme === 'default' ? 'light' : 'default';
+            updateUI();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateUI();
+        });
+    </script>
+</body>
+</html>
